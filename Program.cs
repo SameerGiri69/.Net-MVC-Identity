@@ -1,4 +1,5 @@
 using IdentityPractice.Data;
+using IdentityPractice.Middlewares;
 using IdentityPractice.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +21,6 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPhotoService, PhotoRepository>();
 builder.Services.AddScoped<IToDoListService, ToDoRepository>();
-
-
-
 
 var app = builder.Build();
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
@@ -47,7 +45,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
