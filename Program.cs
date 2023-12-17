@@ -7,6 +7,7 @@ using ToDoApp.Helpers;
 using ToDoApp.Interface;
 using ToDoApp.Repository;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,13 +22,18 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPhotoService, PhotoRepository>();
 builder.Services.AddScoped<IToDoListService, ToDoRepository>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
 
 var app = builder.Build();
-if (args.Length == 1 && args[0].ToLower() == "seeddata")
-{
-    //await Seed.SeedUsersAndRolesAsync(app);
-    Seed.SeedData(app);
-}
+
+//seed
+//if (args.Length == 1 && args[0].ToLower() == "seeddata")
+//{
+//    //await Seed.SeedUsersAndRolesAsync(app);
+//    Seed.SeedData(app);
+//}
 
 
 

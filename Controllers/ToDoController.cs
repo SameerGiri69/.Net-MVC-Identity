@@ -1,4 +1,5 @@
-﻿using IdentityPractice.Models;
+﻿using AutoMapper;
+using IdentityPractice.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp;
@@ -13,13 +14,16 @@ namespace IdentityPractice.Controllers
         private readonly IPhotoService _photoService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IHttpContextAccessor _httpcontext;
+        private readonly IMapper _mapper;
 
-        public ToDoController(IToDoListService service, IPhotoService photoService, UserManager<AppUser> userManager, IHttpContextAccessor context)
+        public ToDoController(IToDoListService service, IPhotoService photoService, UserManager<AppUser> userManager, 
+            IHttpContextAccessor context, IMapper mapper)
         {
             _service = service;
             _photoService = photoService;
             _userManager = userManager;
             _httpcontext = context;
+            _mapper = mapper;
         }
         public IActionResult Index()
         {
@@ -37,39 +41,27 @@ namespace IdentityPractice.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Create(CreateListViewModel lists)
+        public IActionResult Create(CreateListViewModel listsViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return ValidationProblem();
             }
+            
             else
             {
-                if (lists.Image != null)
+                if (listsViewModel.Image != null)
                 {
-                    var imageResult = _photoService.AddPhotoAsync(lists.Image);
-                    var newToDo = new ToDo()
-                    {
-                        Id = lists.Id,
-                        Title = lists.Title,
-                        Description = lists.Description,
-                        Deadline = lists.Deadline,
-                        ImageUrl = imageResult,
-                    };
-                    _service.AddList(newToDo);
-                    return View("Detail", newToDo);
+                    listsViewModel.ImageUrl = _photoService.AddPhotoAsync(listsViewModel.Image);
+                    var toDoMapped = _mapper.Map<ToDo>(listsViewModel);
+                    _service.AddList(toDoMapped);
+                    return View("Detail", toDoMapped);
                 }
                 else
                 {
-                    var newToDo = new ToDo()
-                    {
-                        Id = lists.Id,
-                        Title = lists.Title,
-                        Description = lists.Description,
-                        Deadline = lists.Deadline,
-                    };
-                    _service.AddList(newToDo);
-                    return View("Detail", newToDo);
+                    var autoMapped = _mapper.Map<ToDo>(listsViewModel);
+                    _service.AddList(autoMapped);
+                    return View("Detail", autoMapped);
                 }
             }
 
@@ -78,45 +70,29 @@ namespace IdentityPractice.Controllers
         public IActionResult Update(int id)
         {
             var result = _service.GetList(id);
-            UpdateListViewModel newToDo = new UpdateListViewModel()
-            {
-                Title = result.Title,
-                Description = result.Description,
-                Deadline = result.Deadline,
-            };
-            return View(newToDo);
+            var mapped = _mapper.Map<UpdateListViewModel>(result);
+            
+            return View(mapped);
         }
         [HttpPost]
-        public IActionResult Update(UpdateListViewModel lists)
+        public IActionResult Update(UpdateListViewModel listsViewModel)
         {
-            if (lists.Image != null)
+            if (listsViewModel.Image != null)
             {
-                var photoResult = _photoService.AddPhotoAsync(lists.Image);
-                ToDo newToDo = new ToDo()
-                {
-                    Id = lists.Id,
-                    Title = lists.Title,
-                    Description = lists.Description,
-                    Deadline = lists.Deadline,
-                    ImageUrl = photoResult,
-                };
-                _service.UpdateList(newToDo);
-                newToDo.ImageUrl = photoResult;
-                return View("Detail", newToDo);
+                listsViewModel.ImageUrl = _photoService.AddPhotoAsync(listsViewModel.Image);
+                var mapped = _mapper.Map<ToDo>(listsViewModel);
+
+                _service.UpdateList(mapped);
+                
+                return View("Detail", mapped);
             }
             else
             {
-                ToDo newToDo = new ToDo()
-                {
-                    Id = lists.Id,
-                    Title = lists.Title,
-                    Description = lists.Description,
-                    Deadline = lists.Deadline,
-                };
-                _service.UpdateListNoPhoto(newToDo);
-                var image = _service.GetList(lists.Id);
-                newToDo.ImageUrl = image.ImageUrl;
-                return View("Detail", newToDo);
+                var mapped = _mapper.Map<ToDo>(listsViewModel);
+                _service.UpdateListNoPhoto(mapped);
+                var image = _service.GetList(listsViewModel.Id);
+                mapped.ImageUrl = image.ImageUrl;
+                return View("Detail", mapped);
             }
 
         }

@@ -9,6 +9,7 @@ namespace ToDoApp.ViewModels
         public string? Description { get; set; }
         public IFormFile? Image { get; set; }
         public DateTime Deadline { get; set; }
+        public string? ImageUrl { get; set; }
         public AppUser? User { get; set; }
     }
 }
