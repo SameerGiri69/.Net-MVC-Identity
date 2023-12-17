@@ -45,6 +45,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.MapControllerRoute(
     name: "default",
