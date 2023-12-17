@@ -23,10 +23,8 @@ namespace IdentityPractice.Controllers
         }
         public IActionResult Index()
         {
-            //var lists = _service.GetAllList();
-               var currUser = _httpcontext.HttpContext?.User.GetUserId();
-              var userLists =   _service.GetAllListByUserId(currUser);
-            return View(userLists);
+            var lists = _service.GetAllList();
+            return View(lists);
         }
         public IActionResult Detail(int id)
         {
