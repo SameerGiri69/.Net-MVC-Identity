@@ -1,4 +1,5 @@
 ﻿using IdentityPractice.Models;
+using IdentityPractice.ViewModels;
 
 
 namespace ToDoApp.Interface
@@ -12,5 +13,6 @@ namespace ToDoApp.Interface
         bool DeleteList(int id);
         List<ToDo> GetAllList();
         Task<List<ToDo>> GetAllListByUserId(string id);
+        string GenerateTokenString(LoginViewModel user);
     }
 }
