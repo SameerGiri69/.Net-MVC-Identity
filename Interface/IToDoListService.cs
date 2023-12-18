@@ -11,6 +11,6 @@ namespace ToDoApp.Interface
         bool UpdateListNoPhoto(ToDo toDo);
         bool DeleteList(int id);
         List<ToDo> GetAllList();
-        List<ToDo> GetAllListByUserId(string id);
+        Task<List<ToDo>> GetAllListByUserId(string id);
     }
 }

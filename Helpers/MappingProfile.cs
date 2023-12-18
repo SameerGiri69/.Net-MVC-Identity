@@ -12,9 +12,9 @@ namespace IdentityPractice.Helpers
         {
             
             CreateMap<CreateListViewModel, ToDo>()
-                .ForMember(dest => dest.Id,
+                .ForPath(dest => dest.AppUserId,
                 opt => opt.MapFrom(
-                    src => src.Id))
+                    src => src.AppUserId))
                 .ForMember(dest => dest.Title,
                  opt => opt.MapFrom(
                     src => src.Title))
@@ -29,7 +29,7 @@ namespace IdentityPractice.Helpers
                     src => src.ImageUrl));
 
             CreateMap<UpdateListViewModel, ToDo>()
-                .ForMember(dest => dest.Id,
+                .ForPath(dest => dest.AppUserId,
                 opt => opt.MapFrom(
                     src => src.Id))
                 .ForMember(dest => dest.Title,
