@@ -25,10 +25,17 @@ namespace IdentityPractice.Controllers
             _httpcontext = context;
             _mapper = mapper;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var lists = _service.GetAllList();
-            return View(lists);
+           
+            if (User.Identity.IsAuthenticated)
+            {
+                var currUser = _httpcontext.HttpContext?.User.GetUserId();
+                var lists = await _service.GetAllListByUserId(currUser);
+                
+                return View(lists);
+            }
+            return RedirectToAction("Login", "Account");
         }
         public IActionResult Detail(int id)
         {
@@ -43,6 +50,8 @@ namespace IdentityPractice.Controllers
         [HttpPost]
         public IActionResult Create(CreateListViewModel listsViewModel)
         {
+            var currUser = _httpcontext.HttpContext.User.GetUserId();
+            listsViewModel.AppUserId = currUser;
             if (!ModelState.IsValid)
             {
                 return ValidationProblem();
@@ -52,6 +61,7 @@ namespace IdentityPractice.Controllers
             {
                 if (listsViewModel.Image != null)
                 {
+                     
                     listsViewModel.ImageUrl = _photoService.AddPhotoAsync(listsViewModel.Image);
                     var toDoMapped = _mapper.Map<ToDo>(listsViewModel);
                     _service.AddList(toDoMapped);

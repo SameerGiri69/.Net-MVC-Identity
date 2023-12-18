@@ -66,9 +66,11 @@ namespace ToDoApp.Repository
             return _context.ToDo.ToList();
         }
 
-        public List<ToDo> GetAllListByUserId(string id)
+        public async Task<List<ToDo>> GetAllListByUserId(string id)
         {
-            var lists =  _context.ToDo.Where(x => x.User.Id.ToString() == id).ToList();
+            var lists = await _context.ToDo
+                .Where(x=>x.AppUserId == id)
+                .ToListAsync();
             return lists;
         }
     }
