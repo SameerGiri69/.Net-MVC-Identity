@@ -2,6 +2,7 @@
 using IdentityPractice.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ToDoApp.Interface;
 
 namespace IdentityPractice.Controllers
 {
@@ -9,12 +10,15 @@ namespace IdentityPractice.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IToDoListService _service;
 
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager
+            ,IToDoListService service)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _service = service;
         }
         public IActionResult Index()
         {
@@ -67,9 +71,12 @@ namespace IdentityPractice.Controllers
                 ModelState.AddModelError("User", "error login credentials");
                 return View();
             }
-            var signInResult = await _signInManager.PasswordSignInAsync(loginVM.UserName, loginVM.Password, loginVM.RememberMe, false);
+            var tokenString = _service.GenerateTokenString(loginVM);
+            var signInResult = await _signInManager.PasswordSignInAsync(loginVM.UserName, loginVM.Password,
+                loginVM.RememberMe, false);
             if (signInResult.Succeeded)
             {
+                
                 return RedirectToAction("Index", "Home");
             }
             ModelState.AddModelError("SignIn", "Error signing in");

@@ -1,6 +1,12 @@
 ﻿using IdentityPractice.Data;
 using IdentityPractice.Models;
+using IdentityPractice.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ToDoApp.Interface;
 
 namespace ToDoApp.Repository
@@ -9,11 +15,13 @@ namespace ToDoApp.Repository
     {
         private readonly ApplicationDbContext _context;
         private readonly IPhotoService _photoService;
+        private readonly IConfiguration _configuration;
 
-        public ToDoRepository(ApplicationDbContext context, IPhotoService photoService)
+        public ToDoRepository(ApplicationDbContext context, IPhotoService photoService, IConfiguration configuration)
         {
             _context = context;
             _photoService = photoService;
+            _configuration = configuration;
         }
         public bool AddList(ToDo toDo)
         {
@@ -72,6 +80,30 @@ namespace ToDoApp.Repository
                 .Where(x=>x.AppUserId == id)
                 .ToListAsync();
             return lists;
+        }
+
+        public string GenerateTokenString(LoginViewModel user)
+        {
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Email, user.UserName),
+                new Claim(ClaimTypes.Role,"admin")
+            };
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _configuration.GetSection("JWT:Key").Value));
+
+            var signinCred = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
+            var securityToken = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(60),
+                issuer:_configuration.GetSection("JWT:Issuer").Value,
+                audience:_configuration.GetSection("JWT:Audience").Value,
+
+                signingCredentials: signinCred
+                
+                );
+            string tokenString = new JwtSecurityTokenHandler().WriteToken(securityToken);
+            return tokenString;
         }
     }
 }
